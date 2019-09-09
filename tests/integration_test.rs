@@ -7,7 +7,7 @@ fn get_speaker() -> sonos::Speaker {
 
     devices
         .into_iter()
-        .find(|d| d.name == "Bedroom")
+        .find(|d| d.name == "Living Room")
         .ok_or("Couldn't find bedroom")
         .unwrap()
 }
