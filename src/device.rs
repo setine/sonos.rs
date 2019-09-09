@@ -160,7 +160,7 @@ impl Speaker {
         service: &str,
         action: &str,
         payload: &str,
-        coordinator: bool,
+        use_coordinator: bool,
     ) -> Result<Element> {
         let mut headers = HeaderMap::new();
         headers.insert("Content-Type", "application/xml".parse().unwrap());
@@ -168,16 +168,17 @@ impl Speaker {
             .map_err(|_| "service/action caused an invalid header")?);
 
         let client = reqwest::Client::new();
-        let coordinator = if coordinator {
-            self.coordinator()?
+        let coordinator = if use_coordinator {
+            self.coordinator().ok()
         } else {
-            self.ip
+            None
         };
+        let device = coordinator.unwrap_or(self.ip);
 
-        debug!("Running {}#{} on {}", service, action, coordinator);
+        debug!("Running {}#{} on {}", service, action, device);
 
         let request = client
-            .post(&format!("http://{}:1400/{}", coordinator, endpoint))
+            .post(&format!("http://{}:1400/{}", device, endpoint))
             .headers(headers)
             .body(format!(
                 r#"
